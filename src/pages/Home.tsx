@@ -10,31 +10,19 @@ const Home = () => {
   useEffect(() => {
     const getBannerUrl = async () => {
       try {
-        // First, check if the file exists
-        const { data: fileData, error: fileError } = await supabase.storage
+        const { data: signedUrl, error } = await supabase
+          .storage
           .from('web-content')
-          .list('', {
-            search: 'website banner me v2.png'
-          });
+          .createSignedUrl('website banner me v2.png', 60 * 60 * 24); // 24 hour expiry
 
-        if (fileError) {
-          console.error('Error checking file:', fileError);
+        if (error) {
+          console.error('Error getting signed URL:', error);
           return;
         }
 
-        if (!fileData || fileData.length === 0) {
-          console.error('Banner file not found');
-          return;
-        }
-
-        // Get the public URL
-        const { data } = supabase.storage
-          .from('web-content')
-          .getPublicUrl('website banner me v2.png');
-        
-        if (data?.publicUrl) {
-          console.log('Banner URL:', data.publicUrl);
-          setBannerUrl(data.publicUrl);
+        if (signedUrl?.signedUrl) {
+          console.log('Banner URL:', signedUrl.signedUrl);
+          setBannerUrl(signedUrl.signedUrl);
         }
       } catch (error) {
         console.error('Error getting banner URL:', error);
@@ -42,6 +30,10 @@ const Home = () => {
     };
 
     getBannerUrl();
+
+    // Refresh the signed URL every 12 hours to prevent expiry
+    const interval = setInterval(getBannerUrl, 1000 * 60 * 60 * 12);
+    return () => clearInterval(interval);
   }, []);
 
   return (
