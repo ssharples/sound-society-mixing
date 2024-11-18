@@ -11,53 +11,17 @@ const Home = () => {
   useEffect(() => {
     const getBannerUrl = async () => {
       try {
-        // First, list the files to verify the exact name
-        const { data: files, error: listError } = await supabase
-          .storage
+        // Get public URL
+        const { data } = supabase.storage
           .from('web-content')
-          .list();
-
-        if (listError) {
-          console.error('Error listing files:', listError);
-          setError('Error listing files: ' + listError.message);
-          return;
-        }
-
-        console.log('Available files:', files);
-
-        // Find our banner image
-        const bannerFile = files?.find(file => 
-          file.name.toLowerCase().includes('banner') && 
-          file.name.toLowerCase().includes('me') &&
-          file.name.toLowerCase().includes('v2')
-        );
-
-        if (!bannerFile) {
-          console.error('Banner file not found in storage');
-          setError('Banner file not found in storage');
-          return;
-        }
-
-        console.log('Found banner file:', bannerFile.name);
-
-        // Get signed URL using the exact file name
-        const { data: signedUrl, error: signError } = await supabase
-          .storage
-          .from('web-content')
-          .createSignedUrl(bannerFile.name, 60 * 60 * 24); // 24 hour expiry
-
-        if (signError) {
-          console.error('Error getting signed URL:', signError);
-          setError('Error getting signed URL: ' + signError.message);
-          return;
-        }
-
-        if (signedUrl?.signedUrl) {
-          console.log('Banner URL:', signedUrl.signedUrl);
-          setBannerUrl(signedUrl.signedUrl);
+          .getPublicUrl('website banner me v2.png');
+        
+        if (data?.publicUrl) {
+          console.log('Banner URL:', data.publicUrl);
+          setBannerUrl(data.publicUrl);
           setError('');
         } else {
-          setError('No signed URL received');
+          setError('No public URL received');
         }
       } catch (error) {
         console.error('Error getting banner URL:', error);
@@ -66,10 +30,6 @@ const Home = () => {
     };
 
     getBannerUrl();
-
-    // Refresh the signed URL every 12 hours to prevent expiry
-    const interval = setInterval(getBannerUrl, 1000 * 60 * 60 * 12);
-    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -82,35 +42,33 @@ const Home = () => {
               Error loading banner: {error}
             </div>
           )}
-          {bannerUrl && (
-            <div className="relative w-full h-[400px] mb-8 rounded-xl overflow-hidden">
-              <img
-                src={bannerUrl}
-                alt="Professional Audio Services"
-                className="absolute inset-0 w-full h-full object-cover"
-                onError={(e) => {
-                  const img = e.target as HTMLImageElement;
-                  console.error('Error loading image:', {
-                    src: img.src,
-                    naturalWidth: img.naturalWidth,
-                    naturalHeight: img.naturalHeight,
-                    error: e
-                  });
-                  setError(`Failed to load image from URL: ${img.src}`);
-                }}
-                onLoad={(e) => {
-                  const img = e.target as HTMLImageElement;
-                  console.log('Image loaded successfully:', {
-                    src: img.src,
-                    naturalWidth: img.naturalWidth,
-                    naturalHeight: img.naturalHeight
-                  });
-                  setError('');
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-chrome-900/0 via-chrome-900/60 to-chrome-900"></div>
-            </div>
-          )}
+          <div className="relative w-full h-[400px] mb-8 rounded-xl overflow-hidden">
+            <img
+              src={bannerUrl || 'https://aflxjobceqjpjftxwewp.supabase.co/storage/v1/object/public/web-content/website%20banner%20me%20v2.png'}
+              alt="Professional Audio Services"
+              className="absolute inset-0 w-full h-full object-cover"
+              onError={(e) => {
+                const img = e.target as HTMLImageElement;
+                console.error('Error loading image:', {
+                  src: img.src,
+                  naturalWidth: img.naturalWidth,
+                  naturalHeight: img.naturalHeight,
+                  error: e
+                });
+                setError(`Failed to load image from URL: ${img.src}`);
+              }}
+              onLoad={(e) => {
+                const img = e.target as HTMLImageElement;
+                console.log('Image loaded successfully:', {
+                  src: img.src,
+                  naturalWidth: img.naturalWidth,
+                  naturalHeight: img.naturalHeight
+                });
+                setError('');
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-chrome-900/0 via-chrome-900/60 to-chrome-900"></div>
+          </div>
           <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-gray-100 to-gray-300 bg-clip-text text-transparent mb-6 relative z-10">
             Professional Audio Services
           </h1>
