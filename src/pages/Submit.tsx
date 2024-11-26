@@ -4,12 +4,19 @@ import { useAuth } from '../contexts/AuthContext';
 import { Music2, Clock, Mic2, DollarSign, FileText, ChevronRight, ChevronLeft, Check } from 'lucide-react';
 import FileUpload from '../components/FileUpload';
 import TermsModal from '../components/TermsModal';
+import SpotifySearch from '../components/SpotifySearch';
 import toast from 'react-hot-toast';
 
 interface ProjectForm {
   name: string;
   genre: string;
-  references: string;
+  references: {
+    id: string;
+    name: string;
+    artists: string[];
+    album: string;
+    preview_url: string | null;
+  }[];
   description: string;
   deadline: string;
   budget: string;
@@ -40,7 +47,7 @@ const Submit = () => {
   const [formData, setFormData] = useState<ProjectForm>({
     name: '',
     genre: '',
-    references: '',
+    references: [],
     description: '',
     deadline: '',
     budget: '',
@@ -143,6 +150,53 @@ const Submit = () => {
               <span className="text-gray-300 group-hover:text-gray-200">{label}</span>
             </button>
           ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-3">
+          Reference Tracks
+        </label>
+        <div className="space-y-4">
+          <SpotifySearch
+            onTrackSelect={(track) => {
+              setFormData(prev => ({
+                ...prev,
+                references: [...prev.references, track]
+              }));
+            }}
+          />
+          
+          {formData.references.length > 0 && (
+            <div className="mt-4 space-y-2">
+              <div className="text-sm font-medium text-gray-300 mb-2">Selected Tracks:</div>
+              {formData.references.map((track) => (
+                <div
+                  key={track.id}
+                  className="flex items-center justify-between p-3 bg-chrome-700 border border-chrome-600 rounded-lg"
+                >
+                  <div className="flex-1">
+                    <div className="text-gray-200">{track.name}</div>
+                    <div className="text-sm text-gray-400">
+                      {track.artists.join(', ')} • {track.album}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        references: prev.references.filter(ref => ref.id !== track.id)
+                      }));
+                    }}
+                    className="ml-2 p-1 text-gray-400 hover:text-gray-300"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
