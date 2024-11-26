@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Music2, Mic2, Award, Waveform, Laptop2, Headphones, HelpCircle } from 'lucide-react';
+import { Music2, Mic2, Award, Waves, Laptop2, Headphones, HelpCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import SpotifyPlaylist from '../components/SpotifyPlaylist';
@@ -187,7 +187,7 @@ const Home = () => {
 
             <div className="bg-chrome-800 border border-chrome-600 rounded-lg p-6">
               <h3 className="text-xl font-semibold text-gray-100 mb-4 flex items-center">
-                <Waveform className="h-6 w-6 text-indigo-400 mr-3" />
+                <Waves className="h-6 w-6 text-indigo-400 mr-3" />
                 Hardware
               </h3>
               <ul className="space-y-2 text-gray-400">
