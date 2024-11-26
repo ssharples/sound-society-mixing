@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Music2, Play, Pause } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getSpotifyToken, getPlaylistTracks, type SpotifyTrack } from '../lib/spotify';
 
 interface Track {
   id: string;
@@ -11,50 +12,17 @@ interface Track {
 }
 
 const SpotifyPlaylist: React.FC = () => {
-  const [tracks, setTracks] = useState<Track[]>([]);
+  const [tracks, setTracks] = useState<SpotifyTrack[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const getSpotifyToken = async () => {
+    const fetchPlaylist = async () => {
       try {
-        const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-        const clientSecret = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET;
-        const playlistId = import.meta.env.VITE_SPOTIFY_PLAYLIST_ID;
-
-        const response = await fetch('https://accounts.spotify.com/api/token', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization: 'Basic ' + btoa(clientId + ':' + clientSecret),
-          },
-          body: 'grant_type=client_credentials',
-        });
-
-        const data = await response.json();
-        const accessToken = data.access_token;
-
-        // Fetch playlist tracks
-        const playlistResponse = await fetch(
-          `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=5`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        );
-
-        const playlistData = await playlistResponse.json();
-        const formattedTracks: Track[] = playlistData.items.map((item: any) => ({
-          id: item.track.id,
-          name: item.track.name,
-          artists: item.track.artists.map((artist: any) => artist.name),
-          album: item.track.album.name,
-          preview_url: item.track.preview_url,
-        }));
-
-        setTracks(formattedTracks);
+        const token = await getSpotifyToken();
+        const playlistTracks = await getPlaylistTracks(token);
+        setTracks(playlistTracks);
       } catch (error) {
         console.error('Error fetching playlist:', error);
         toast.error('Failed to load playlist');
@@ -63,7 +31,7 @@ const SpotifyPlaylist: React.FC = () => {
       }
     };
 
-    getSpotifyToken();
+    fetchPlaylist();
 
     return () => {
       if (audioElement) {
@@ -72,7 +40,7 @@ const SpotifyPlaylist: React.FC = () => {
     };
   }, []);
 
-  const handlePlayPause = (track: Track) => {
+  const handlePlayPause = (track: SpotifyTrack) => {
     if (!track.preview_url) {
       toast.error('No preview available for this track');
       return;

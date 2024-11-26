@@ -1,76 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Music2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-interface Track {
-  id: string;
-  name: string;
-  artists: string[];
-  album: string;
-  preview_url: string | null;
-}
+import { getSpotifyToken, searchTracks, type SpotifyTrack } from '../lib/spotify';
 
 interface SpotifySearchProps {
-  onTrackSelect: (track: Track) => void;
+  onTrackSelect: (track: SpotifyTrack) => void;
 }
 
 const SpotifySearch: React.FC<SpotifySearchProps> = ({ onTrackSelect }) => {
   const [query, setQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Track[]>([]);
+  const [searchResults, setSearchResults] = useState<SpotifyTrack[]>([]);
   const [loading, setLoading] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const getSpotifyToken = async () => {
+    const initializeSpotify = async () => {
       try {
-        const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-        const clientSecret = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET;
-
-        const response = await fetch('https://accounts.spotify.com/api/token', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization: 'Basic ' + btoa(clientId + ':' + clientSecret),
-          },
-          body: 'grant_type=client_credentials',
-        });
-
-        const data = await response.json();
-        setAccessToken(data.access_token);
+        const token = await getSpotifyToken();
+        setAccessToken(token);
       } catch (error) {
         console.error('Error getting Spotify token:', error);
         toast.error('Failed to connect to Spotify');
       }
     };
 
-    getSpotifyToken();
+    initializeSpotify();
   }, []);
 
-  const searchSpotify = async () => {
+  const performSearch = async () => {
     if (!query.trim() || !accessToken) return;
 
     setLoading(true);
     try {
-      const response = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodeURIComponent(
-          query
-        )}&type=track&limit=5`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-      const tracks: Track[] = data.tracks.items.map((item: any) => ({
-        id: item.id,
-        name: item.name,
-        artists: item.artists.map((artist: any) => artist.name),
-        album: item.album.name,
-        preview_url: item.preview_url,
-      }));
-
+      const tracks = await searchTracks(query, accessToken);
       setSearchResults(tracks);
     } catch (error) {
       console.error('Error searching Spotify:', error);
@@ -82,7 +44,7 @@ const SpotifySearch: React.FC<SpotifySearchProps> = ({ onTrackSelect }) => {
 
   useEffect(() => {
     const delaySearch = setTimeout(() => {
-      if (query) searchSpotify();
+      if (query) performSearch();
     }, 500);
 
     return () => clearTimeout(delaySearch);
