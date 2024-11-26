@@ -38,11 +38,11 @@ const Home = () => {
         {/* Hero Section */}
         <div className="text-center mb-16 relative">
           {error && (
-            <div className="text-red-500 mb-4">
+            <div className="text-red-500 mb-4 bg-red-500/10 p-3 rounded-lg">
               Error loading banner: {error}
             </div>
           )}
-          <div className="relative w-full h-[400px] mb-8 rounded-xl overflow-hidden">
+          <div className="relative w-full h-[500px] mb-8 rounded-xl overflow-hidden shadow-lg">
             <img
               src={bannerUrl || 'https://aflxjobceqjpjftxwewp.supabase.co/storage/v1/object/public/web-content/website%20banner%20me%20v2.png'}
               alt="Professional Audio Services"
@@ -69,17 +69,17 @@ const Home = () => {
             />
             <div className="absolute inset-0 bg-gradient-to-b from-chrome-900/0 via-chrome-900/60 to-chrome-900"></div>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-gray-100 to-gray-300 bg-clip-text text-transparent mb-6 relative z-10">
+          <h1 className="text-4xl sm:text-6xl font-bold bg-gradient-to-r from-indigo-300 to-indigo-100 bg-clip-text text-transparent mb-6 relative z-10">
             Professional Audio Services
           </h1>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto relative z-10">
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-8 relative z-10">
             Expert mixing, mastering, and production services for musicians and creators
           </p>
         </div>
 
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          <div className="bg-chrome-800 border border-chrome-600 rounded-lg p-6 text-center">
+          <div className="bg-chrome-800 border border-chrome-600 rounded-lg p-6 text-center transform transition-all duration-300 hover:scale-105 hover:shadow-neon">
             <div className="inline-block p-3 bg-indigo-600/20 rounded-lg mb-4">
               <Music2 className="h-8 w-8 text-indigo-400" />
             </div>
@@ -89,7 +89,7 @@ const Home = () => {
             </p>
           </div>
 
-          <div className="bg-chrome-800 border border-chrome-600 rounded-lg p-6 text-center">
+          <div className="bg-chrome-800 border border-chrome-600 rounded-lg p-6 text-center transform transition-all duration-300 hover:scale-105 hover:shadow-neon">
             <div className="inline-block p-3 bg-indigo-600/20 rounded-lg mb-4">
               <Mic2 className="h-8 w-8 text-indigo-400" />
             </div>
@@ -99,7 +99,7 @@ const Home = () => {
             </p>
           </div>
 
-          <div className="bg-chrome-800 border border-chrome-600 rounded-lg p-6 text-center">
+          <div className="bg-chrome-800 border border-chrome-600 rounded-lg p-6 text-center transform transition-all duration-300 hover:scale-105 hover:shadow-neon">
             <div className="inline-block p-3 bg-indigo-600/20 rounded-lg mb-4">
               <Award className="h-8 w-8 text-indigo-400" />
             </div>
@@ -114,7 +114,7 @@ const Home = () => {
         <div className="text-center">
           <Link
             to="/submit"
-            className="inline-flex items-center px-6 py-3 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-lg hover:bg-indigo-600/30 hover:shadow-neon transition-all text-lg font-medium"
+            className="inline-flex items-center px-8 py-4 bg-indigo-600 text-indigo-100 border border-indigo-500 rounded-lg hover:bg-indigo-700 hover:shadow-neon transition-all text-lg font-medium"
           >
             Start Your Project
           </Link>
